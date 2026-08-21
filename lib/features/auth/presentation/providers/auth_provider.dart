@@ -21,10 +21,14 @@ class AuthNotifier extends AsyncNotifier<UserEntity?> {
     // screen never flashes on launch.
     try {
       final result = await _check(const NoParams());
-      return result.fold((failure) => null, (hasSession) {
-        if (!hasSession) return null;
-        return const UserEntity.empty();
-      });
+      // Resolve fold into a concrete value before returning — fpdart's fold
+      // returns FutureOr, and returning a (possibly) Future inside a try
+      // triggers `unawaited_return_in_try_block`.
+      final session = result.fold<UserEntity?>(
+        (_) => null,
+        (hasSession) => hasSession ? const UserEntity.empty() : null,
+      );
+      return session;
     } catch (e) {
       return null;
     }
