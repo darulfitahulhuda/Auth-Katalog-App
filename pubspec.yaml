@@ -53,6 +53,9 @@ dependencies:
   # Codegen for assets
   flutter_gen: ^5.8.0
 
+  # Native splash screen (boot-time branding, before Dart runs)
+  flutter_native_splash: ^2.4.7
+
   fpdart: ^1.2.0
   connectivity_plus: ^7.3.1
   pretty_dio_logger: ^1.4.0
@@ -120,6 +123,11 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
 
+
+flutter_native_splash:
+  color: "#FFFFFF"
+  android: true
+  ios: true
 
 flutter_gen:
   output: lib/core/assets/ # Optional (default: lib/gen/)
