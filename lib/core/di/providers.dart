@@ -1,12 +1,11 @@
 import 'package:auth_katalog_app/core/network/interceptors/auth_interceptor.dart';
 import 'package:auth_katalog_app/core/network/dio_clients.dart';
 import 'package:auth_katalog_app/core/network/network_info.dart';
+import 'package:auth_katalog_app/features/auth/data/datasource/auth_local_data_source.dart';
 import 'package:auth_katalog_app/features/auth/data/datasource/auth_remote_data_source.dart';
 import 'package:auth_katalog_app/features/auth/data/repositories/auth_repository_impl.dart';
-import 'package:auth_katalog_app/features/auth/data/repositories/token_repository_impl.dart';
 import 'package:auth_katalog_app/features/auth/domain/entity/user_entity.dart';
 import 'package:auth_katalog_app/features/auth/domain/repositories/auth_repository.dart';
-import 'package:auth_katalog_app/features/auth/domain/repositories/token_repository.dart';
 import 'package:auth_katalog_app/features/auth/domain/usecase/check_auth_status_usecase.dart';
 import 'package:auth_katalog_app/features/auth/domain/usecase/login_usecase.dart';
 import 'package:auth_katalog_app/features/auth/domain/usecase/logout_usecase.dart';
@@ -33,8 +32,8 @@ final secureStorageProvider = Provider<FlutterSecureStorage>(
   (ref) => const FlutterSecureStorage(),
 );
 
-final tokenRepositoryProvider = Provider<TokenRepository>(
-  (ref) => TokenRepositoryImpl(ref.watch(secureStorageProvider)),
+final authLocalDataSourceProvider = Provider<AuthLocalDataSource>(
+  (ref) => AuthLocalDataSourceImpl(ref.watch(secureStorageProvider)),
 );
 
 /// Raw API client wired with PrettyDioLogger (debug only). The single-flight
@@ -47,7 +46,7 @@ final dioProvider = Provider<Dio>((ref) {
   final dio = createDioClient(baseUrl: _baseUrl);
   dio.interceptors.add(
     AuthInterceptor(
-      tokenRepository: ref.watch(tokenRepositoryProvider),
+      authLocalDataSource: ref.watch(authLocalDataSourceProvider),
       dio: dio,
       onUnauthorized: () {
         ref.read(authStateNotifierProvider.notifier).onSessionExpired();
@@ -64,7 +63,7 @@ final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>(
 final authRepositoryProvider = Provider<AuthRepository>(
   (ref) => AuthRepositoryImpl(
     remoteDataSource: ref.watch(authRemoteDataSourceProvider),
-    tokenRepository: ref.watch(tokenRepositoryProvider),
+    authLocalDataSource: ref.watch(authLocalDataSourceProvider),
   ),
 );
 
@@ -118,7 +117,7 @@ final profileRemoteDataSourceProvider = Provider<ProfileRemoteDataSource>(
 final profileRepositoryProvider = Provider<ProfileRepository>(
   (ref) => ProfileRepositoryImpl(
     remoteDataSource: ref.watch(profileRemoteDataSourceProvider),
-    tokenRepository: ref.watch(tokenRepositoryProvider),
+    authLocalDataSource: ref.watch(authLocalDataSourceProvider),
   ),
 );
 

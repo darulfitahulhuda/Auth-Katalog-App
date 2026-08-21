@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:auth_katalog_app/features/auth/domain/repositories/token_repository.dart';
+import 'package:auth_katalog_app/features/auth/data/datasource/auth_local_data_source.dart';
 import 'package:dio/dio.dart';
 
 /// Injects `Authorization: Bearer <accessToken>` into every protected request
@@ -16,14 +16,14 @@ typedef VoidCallback = void Function();
 
 class AuthInterceptor extends Interceptor {
   AuthInterceptor({
-    required TokenRepository tokenRepository,
+    required AuthLocalDataSource authLocalDataSource,
     required Dio dio,
     VoidCallback? onUnauthorized,
-  }) : _tokenRepository = tokenRepository,
+  }) : _authLocalDataSource = authLocalDataSource,
        _dio = dio,
        _onUnauthorized = onUnauthorized;
 
-  final TokenRepository _tokenRepository;
+  final AuthLocalDataSource _authLocalDataSource;
   final Dio _dio;
   final VoidCallback? _onUnauthorized;
 
@@ -38,7 +38,7 @@ class AuthInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    final accessToken = await _tokenRepository.getAccessToken();
+    final accessToken = await _authLocalDataSource.getAccessToken();
     if (accessToken != null && accessToken.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $accessToken';
     }
@@ -95,9 +95,9 @@ class AuthInterceptor extends Interceptor {
   /// Calls `/auth/refresh` on an isolated Dio instance, saving new tokens.
   Future<String?> _handleTokenRefresh() async {
     try {
-      final refreshToken = await _tokenRepository.getRefreshToken();
+      final refreshToken = await _authLocalDataSource.getRefreshToken();
       if (refreshToken == null || refreshToken.isEmpty) {
-        await _tokenRepository.clearTokens();
+        await _authLocalDataSource.clearTokens();
         _onUnauthorized?.call();
         _refreshCompleter!.complete(null);
         return null;
@@ -123,7 +123,7 @@ class AuthInterceptor extends Interceptor {
         );
       }
 
-      await _tokenRepository.saveTokens(
+      await _authLocalDataSource.saveTokens(
         accessToken: newAccess,
         refreshToken: newRefresh,
       );
@@ -131,7 +131,7 @@ class AuthInterceptor extends Interceptor {
       return newAccess;
     } catch (error) {
       // Any failure: wipe tokens and bounce the user to login.
-      await _tokenRepository.clearTokens();
+      await _authLocalDataSource.clearTokens();
       _refreshCompleter!.complete(null);
       _onUnauthorized?.call();
       return null;
@@ -147,7 +147,7 @@ class AuthInterceptor extends Interceptor {
     try {
       // Ensure the retry carries the new token even if another request's
       // onRequest already ran.
-      final freshToken = await _tokenRepository.getAccessToken();
+      final freshToken = await _authLocalDataSource.getAccessToken();
       if (freshToken != null && freshToken.isNotEmpty) {
         original.headers['Authorization'] = 'Bearer $freshToken';
       }

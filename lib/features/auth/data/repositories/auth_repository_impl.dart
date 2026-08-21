@@ -1,10 +1,10 @@
 import 'package:auth_katalog_app/core/error/exceptions.dart';
 import 'package:auth_katalog_app/core/error/failures.dart';
 import 'package:auth_katalog_app/core/utils/typedef.dart';
+import 'package:auth_katalog_app/features/auth/data/datasource/auth_local_data_source.dart';
 import 'package:auth_katalog_app/features/auth/data/datasource/auth_remote_data_source.dart';
 import 'package:auth_katalog_app/features/auth/domain/entity/user_entity.dart';
 import 'package:auth_katalog_app/features/auth/domain/repositories/auth_repository.dart';
-import 'package:auth_katalog_app/features/auth/domain/repositories/token_repository.dart';
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
 
@@ -13,12 +13,12 @@ import 'package:fpdart/fpdart.dart';
 class AuthRepositoryImpl implements AuthRepository {
   const AuthRepositoryImpl({
     required AuthRemoteDataSource remoteDataSource,
-    required TokenRepository tokenRepository,
+    required AuthLocalDataSource authLocalDataSource,
   }) : _remoteDataSource = remoteDataSource,
-       _tokenRepository = tokenRepository;
+       _authLocalDataSource = authLocalDataSource;
 
   final AuthRemoteDataSource _remoteDataSource;
-  final TokenRepository _tokenRepository;
+  final AuthLocalDataSource _authLocalDataSource;
 
   @override
   FutureData<UserEntity> login({
@@ -30,16 +30,14 @@ class AuthRepositoryImpl implements AuthRepository {
         username: username,
         password: password,
       );
-      await _tokenRepository.saveTokens(
+      await _authLocalDataSource.saveTokens(
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
       );
       // Login response carries only tokens; the profile lives in the profile
       // feature and is fetched separately via `/auth/me`. Emit a lightweight
       // identity so the auth flow stays fast and session-only.
-      return Right(
-        UserEntity(id: 0, username: username, email: ''),
-      );
+      return Right(UserEntity(id: 0, username: username, email: ''));
     } on DioException catch (error) {
       return Left(Failure.server(_extractMessage(error), error.stackTrace));
     } on ServerException catch (error) {
@@ -51,13 +49,13 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> logout() async {
-    await _tokenRepository.clearTokens();
+    await _authLocalDataSource.clearTokens();
   }
 
   @override
   Future<bool> checkAuthStatus() async {
-    final access = await _tokenRepository.getAccessToken();
-    final refresh = await _tokenRepository.getRefreshToken();
+    final access = await _authLocalDataSource.getAccessToken();
+    final refresh = await _authLocalDataSource.getRefreshToken();
     return access != null && refresh != null;
   }
 

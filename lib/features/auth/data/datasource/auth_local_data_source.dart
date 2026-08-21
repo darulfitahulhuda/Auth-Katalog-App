@@ -1,10 +1,22 @@
-import 'package:auth_katalog_app/features/auth/domain/repositories/token_repository.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+abstract interface class AuthLocalDataSource {
+  Future<String?> getAccessToken();
+
+  Future<String?> getRefreshToken();
+
+  Future<void> saveTokens({
+    required String accessToken,
+    required String refreshToken,
+  });
+
+  Future<void> clearTokens();
+}
 
 /// Secure token persistence backed by `flutter_secure_storage`.
 /// Never use SharedPreferences for tokens.
-class TokenRepositoryImpl implements TokenRepository {
-  const TokenRepositoryImpl(this._secureStorage);
+class AuthLocalDataSourceImpl implements AuthLocalDataSource {
+  const AuthLocalDataSourceImpl(this._secureStorage);
 
   final FlutterSecureStorage _secureStorage;
 

@@ -2,12 +2,12 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:auth_katalog_app/core/network/interceptors/auth_interceptor.dart';
-import 'package:auth_katalog_app/features/auth/domain/repositories/token_repository.dart';
+import 'package:auth_katalog_app/features/auth/data/datasource/auth_local_data_source.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// In-memory [TokenRepository] for tests (no platform channel needed).
-class _FakeTokenRepository implements TokenRepository {
+class _FakeTokenRepository implements AuthLocalDataSource {
   String? access;
   String? refresh;
 
@@ -111,7 +111,7 @@ void main() {
     var unauthorizedRedirects = 0;
     dio.interceptors.add(
       AuthInterceptor(
-        tokenRepository: tokenRepo,
+        authLocalDataSource: tokenRepo,
         dio: dio,
         onUnauthorized: () => unauthorizedRedirects++,
       ),

@@ -1,7 +1,7 @@
 import 'package:auth_katalog_app/core/error/failures.dart';
 import 'package:auth_katalog_app/core/error/exceptions.dart';
 import 'package:auth_katalog_app/core/utils/typedef.dart';
-import 'package:auth_katalog_app/features/auth/domain/repositories/token_repository.dart';
+import 'package:auth_katalog_app/features/auth/data/datasource/auth_local_data_source.dart';
 import 'package:auth_katalog_app/features/profile/data/datasource/profile_remote_data_source.dart';
 import 'package:auth_katalog_app/features/profile/domain/entity/profile_entity.dart';
 import 'package:auth_katalog_app/features/profile/domain/repository/profile_repository.dart';
@@ -13,20 +13,20 @@ import 'package:fpdart/fpdart.dart';
 class ProfileRepositoryImpl implements ProfileRepository {
   const ProfileRepositoryImpl({
     required ProfileRemoteDataSource remoteDataSource,
-    required TokenRepository tokenRepository,
+    required AuthLocalDataSource authLocalDataSource,
   }) : _remoteDataSource = remoteDataSource,
-       _tokenRepository = tokenRepository;
+       _authLocalDataSource = authLocalDataSource;
 
   final ProfileRemoteDataSource _remoteDataSource;
-  final TokenRepository _tokenRepository;
+  final AuthLocalDataSource _authLocalDataSource;
 
   @override
   FutureData<ProfileEntity> getProfile() async {
     try {
-      final token = await _tokenRepository.getAccessToken();
+      final token = await _authLocalDataSource.getAccessToken();
       if (token == null) {
         return Left(
-          Failure.cache('No authentication token found', StackTrace.current),
+          Failure.cache('No authentication token found', StackTrace.empty),
         );
       }
       final profile = await _remoteDataSource.getProfile(accessToken: token);
