@@ -1,6 +1,9 @@
 import 'package:auth_katalog_app/core/network/interceptors/auth_interceptor.dart';
 import 'package:auth_katalog_app/core/network/dio_clients.dart';
 import 'package:auth_katalog_app/core/network/network_info.dart';
+import 'package:auth_katalog_app/core/theme/shared_preferences_theme_store.dart';
+import 'package:auth_katalog_app/core/theme/theme_controller.dart';
+import 'package:auth_katalog_app/core/theme/theme_preferences.dart';
 import 'package:auth_katalog_app/features/auth/data/datasource/auth_local_data_source.dart';
 import 'package:auth_katalog_app/features/auth/data/datasource/auth_remote_data_source.dart';
 import 'package:auth_katalog_app/features/auth/data/repositories/auth_repository_impl.dart';
@@ -22,7 +25,9 @@ import 'package:auth_katalog_app/features/profile/domain/repository/profile_repo
 import 'package:auth_katalog_app/features/profile/domain/usecase/get_profile_usecase.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 const _baseUrl = 'https://dummyjson.com';
@@ -81,6 +86,19 @@ final checkAuthStatusUseCaseProvider = Provider<CheckAuthStatusUseCase>(
 // --- Auth state ---
 final authStateNotifierProvider =
     AsyncNotifierProvider<AuthNotifier, UserEntity?>(AuthNotifier.new);
+
+// --- Theme mode ---
+final themeModeProvider =
+    AsyncNotifierProvider<ThemeController, ThemeMode>(ThemeController.new);
+
+/// Lazily-obtained shared-preferences store. It's an `AsyncDio`-free Future:
+/// `SharedPreferences.getInstance()` is itself async, so the store exposes the
+/// whole instance future for callers to await.
+final themePreferencesStoreProvider =
+    Provider<Future<ThemePreferencesStore>>((ref) async {
+  final prefs = await SharedPreferences.getInstance();
+  return SharedPreferencesThemeStore(prefs);
+});
 
 // --- Network info ---
 final networkInfoProvider = Provider<NetworkInfo>(

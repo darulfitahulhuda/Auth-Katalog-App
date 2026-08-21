@@ -42,11 +42,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final notifier = ref.read(productListProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Katalog'),
-        backgroundColor: Colors.amber[700],
-        foregroundColor: Colors.white,
-      ),
+      appBar: AppBar(title: const Text('Katalog')),
       body: Column(
         children: [
           _ProfileHeader(profile: profileAsync.value),

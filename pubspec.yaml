@@ -42,6 +42,8 @@ dependencies:
   dio: ^5.7.0
   # Secure token storage
   flutter_secure_storage: ^9.2.2
+  # Persist the user's theme preference (non-sensitive; token storage stays secure)
+  shared_preferences: ^2.5.0
   # Routing
   go_router: ^14.6.0
   # Money / number formatting

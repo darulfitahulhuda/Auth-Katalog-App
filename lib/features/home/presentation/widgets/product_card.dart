@@ -23,19 +23,24 @@ class ProductCard extends StatelessWidget {
           children: [
             AspectRatio(
               aspectRatio: 1,
-              child: Image.network(
-                product.thumbnail,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => const ColoredBox(
-                  color: Color(0xFFEEEEEE),
-                  child: Center(
-                    child: Icon(Icons.image_not_supported_outlined, size: 40),
+              child: Hero(
+                tag: 'product-image-${product.id}',
+                child: Image.network(
+                  product.thumbnail,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => ColoredBox(
+                    color:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
+                    child: const Center(
+                      child:
+                          Icon(Icons.image_not_supported_outlined, size: 40),
+                    ),
                   ),
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

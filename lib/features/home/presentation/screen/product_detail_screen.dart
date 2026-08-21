@@ -48,13 +48,16 @@ class _DetailBody extends StatelessWidget {
       children: [
         AspectRatio(
           aspectRatio: 4 / 3,
-          child: Image.network(
-            product.thumbnail,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) => const ColoredBox(
-              color: Color(0xFFEEEEEE),
-              child: Center(
-                child: Icon(Icons.image_not_supported_outlined, size: 48),
+          child: Hero(
+            tag: 'product-image-${product.id}',
+            child: Image.network(
+              product.thumbnail,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => ColoredBox(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                child: const Center(
+                  child: Icon(Icons.image_not_supported_outlined, size: 48),
+                ),
               ),
             ),
           ),
@@ -69,7 +72,7 @@ class _DetailBody extends StatelessWidget {
               Row(
                 children: [
                   Icon(Icons.star_rounded,
-                      size: 20, color: Colors.amber[700]),
+                      size: 20, color: theme.colorScheme.tertiary),
                   const SizedBox(width: 4),
                   Text(
                     product.rating.toStringAsFixed(1),
