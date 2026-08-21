@@ -1,7 +1,6 @@
-import 'package:auth_katalog_app/core/di/providers.dart' hide themeModeProvider;
+import 'package:auth_katalog_app/core/di/providers.dart';
 import 'package:auth_katalog_app/core/error/failures.dart';
 import 'package:auth_katalog_app/core/presentation/widgets/app_error_view.dart';
-import 'package:auth_katalog_app/core/theme/theme_controller.dart';
 import 'package:auth_katalog_app/features/profile/domain/entity/profile_entity.dart';
 import 'package:auth_katalog_app/features/profile/presentation/providers/profile_provider.dart';
 import 'package:flutter/material.dart';
@@ -246,4 +245,3 @@ class _ProfileBody extends StatelessWidget {
     );
   }
 }
-

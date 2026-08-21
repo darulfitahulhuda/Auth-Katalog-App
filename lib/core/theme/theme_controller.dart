@@ -4,10 +4,6 @@ import 'package:auth_katalog_app/core/theme/theme_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Async state for a theme-mode read (holds [ThemeMode], or its error).
-final themeModeProvider =
-    AsyncNotifierProvider<ThemeController, ThemeMode>(ThemeController.new);
-
 /// Owns the app's [ThemeMode] (light/dark/system) and persists every change
 /// through the injected [ThemePreferencesStore]. Lives in `core/`, so no
 /// feature imports it — [App] watches it and MaterialApp.router consumes it.

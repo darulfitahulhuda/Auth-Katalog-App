@@ -1,8 +1,11 @@
 import 'package:auth_katalog_app/core/di/providers.dart';
 import 'package:auth_katalog_app/features/auth/presentation/screen/login_screen.dart';
+import 'package:auth_katalog_app/features/auth/presentation/screen/splash_screen.dart';
 import 'package:auth_katalog_app/features/auth/presentation/widgets/main_shell_layout.dart';
+import 'package:auth_katalog_app/features/home/presentation/providers/product_providers.dart';
 import 'package:auth_katalog_app/features/home/presentation/screen/home_screen.dart';
 import 'package:auth_katalog_app/features/home/presentation/screen/product_detail_screen.dart';
+import 'package:auth_katalog_app/features/profile/presentation/providers/profile_provider.dart';
 import 'package:auth_katalog_app/features/profile/presentation/screen/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,28 +24,29 @@ final routerProvider = Provider<GoRouter>((ref) {
     navigatorKey: _rootNavigatorKey,
     redirect: (context, state) {
       final authAsync = ref.read(authStateNotifierProvider);
+      final isLoggedIn = authAsync.asData?.value != null;
 
-      final isLoggedIn = authAsync.value != null;
-      final isOnLogin = state.matchedLocation == '/login';
-
-      // While the persisted session is still being checked, do not redirect:
-      // `AsyncLoading` → value is null but we must NOT bounce to the login
-      // screen (that would flash login on every app launch).
+      // BOOT GATE — while the persisted session is still being checked, park
+      // on /splash instead of letting /home mount (that was the source of a
+      // flash-to-login / blank home on every launch).
       if (authAsync.isLoading) {
+        if (state.matchedLocation == '/splash') return null;
+        return '/splash';
+      }
+
+      if (isLoggedIn) {
+        // Data ready: make sure we leave the splash (automatically reached
+        // because the redirect re-runs whenever productList/profile change).
+        if (state.matchedLocation == '/splash') return '/home';
         return null;
       }
 
-      // Not logged in and not on the login screen → send to login.
-      if (!isLoggedIn && !isOnLogin) {
-        return '/login';
-      }
       // Logged in but lingering on the login screen → go home.
-      if (isLoggedIn && isOnLogin) {
+      if (isLoggedIn && state.matchedLocation == '/login') {
         return '/home';
       }
-      // Otherwise (authenticated browsing anywhere, incl. /home/product/:id)
-      // let the navigation proceed untouched.
-      return null;
+      // Anything else not on /login (i.e. unauthenticated) → login.
+      return state.matchedLocation == '/login' ? null : '/login';
     },
     routes: [
       ShellRoute(
@@ -69,11 +73,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
     ],
   );
 
-  // Auth state changes (login / logout / session-expired) re-run the redirect,
-  // so the router navigates on its own — no manual context.go() needed.
+  // Auth state changes (login / logout / session-expired), and the two data
+  // providers the boot gate waits on, all re-run the redirect so the router
+  // navigates on its own — no manual context.go() needed.
   ref.listen(authStateNotifierProvider, (previous, next) {
     router.refresh();
   });

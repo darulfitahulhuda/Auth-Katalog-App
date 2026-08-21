@@ -78,33 +78,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
           ),
-          Expanded(child: _buildProductArea(productsAsync, notifier)),
+
+          Expanded(
+            child: productsAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, stackTrace) => AppErrorView(
+                isOffline: error is NetworkFailure,
+                onRetry: notifier.retry,
+                onPullRefresh: notifier.refresh,
+              ),
+              data: (products) => products.isEmpty
+                  ? _EmptyView(
+                      onClearSearch: _clearSearch,
+                      onRefresh: notifier.refresh,
+                    )
+                  : _ProductGrid(
+                      products: products,
+                      isLoadingMore: ref.watch(isProductLoadingMoreProvider),
+                      onRefresh: notifier.refresh,
+                      onLoadMore: notifier.loadMore,
+                    ),
+            ),
+          ),
         ],
       ),
-    );
-  }
-
-  Widget _buildProductArea(
-    AsyncValue<List<ProductEntity>> productsAsync,
-    ProductListNotifier notifier,
-  ) {
-    return productsAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) => AppErrorView(
-        isOffline: error is NetworkFailure,
-        onRetry: notifier.retry,
-        onPullRefresh: notifier.refresh,
-      ),
-      data: (products) => products.isEmpty
-          ? _EmptyView(
-              onClearSearch: _clearSearch,
-              onRefresh: notifier.refresh,
-            )
-          : _ProductGrid(
-              products: products,
-              onRefresh: notifier.refresh,
-              onLoadMore: notifier.loadMore,
-            ),
     );
   }
 }
@@ -151,11 +148,13 @@ class _ProfileHeader extends StatelessWidget {
 class _ProductGrid extends StatelessWidget {
   const _ProductGrid({
     required this.products,
+    required this.isLoadingMore,
     required this.onRefresh,
     required this.onLoadMore,
   });
 
   final List<ProductEntity> products;
+  final bool isLoadingMore;
   final Future<void> Function() onRefresh;
   final Future<void> Function() onLoadMore;
 
@@ -171,21 +170,59 @@ class _ProductGrid extends StatelessWidget {
     /// Tolerant consumer of the (nullable) endpoints.
     return RefreshIndicator(
       onRefresh: onRefresh,
-      child: GridView.builder(
+      child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: crossAxisCount,
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          childAspectRatio: 0.68,
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverGrid(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 0.68,
+              ),
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  // Infinite scroll: trigger the next page near the end. The
+                  // trigger must NOT run synchronously during build — loadMore
+                  // writes to a provider (footer flag), and Riverpod forbids
+                  // modifying a provider while the widget tree is building.
+                  if (index >= products.length - 4) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      onLoadMore();
+                    });
+                  }
+                  return ProductCard(product: products[index]);
+                },
+                childCount: products.length,
+              ),
+            ),
+          ),
+          // Loading footer: shown only while a next page is being appended.
+          if (isLoadingMore) const _LoadMoreFooter(),
+        ],
+      ),
+    );
+  }
+}
+
+/// Small footer shown at the bottom of the grid while the next page loads.
+class _LoadMoreFooter extends StatelessWidget {
+  const _LoadMoreFooter();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SliverToBoxAdapter(
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 24),
+        child: Center(
+          child: SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(strokeWidth: 2.5),
+          ),
         ),
-        itemCount: products.length,
-        itemBuilder: (context, index) {
-          // Infinite scroll: trigger next page near the end of the list.
-          if (index >= products.length - 4) onLoadMore();
-          return ProductCard(product: products[index]);
-        },
       ),
     );
   }
@@ -228,4 +265,3 @@ class _EmptyView extends StatelessWidget {
     );
   }
 }
-

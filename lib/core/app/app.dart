@@ -1,6 +1,6 @@
+import 'package:auth_katalog_app/core/di/providers.dart';
 import 'package:auth_katalog_app/core/router/app_router.dart';
 import 'package:auth_katalog_app/core/theme/app_theme.dart';
-import 'package:auth_katalog_app/core/theme/theme_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -15,6 +15,13 @@ class App extends ConsumerStatefulWidget {
 }
 
 class _AppState extends ConsumerState<App> {
+  @override
+  void initState() {
+    super.initState();
+
+    ref.read(authStateNotifierProvider);
+  }
+
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);

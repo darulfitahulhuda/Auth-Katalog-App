@@ -13,6 +13,19 @@ const int productPageSize = 20;
 /// Debounce window for the search bar.
 const Duration searchDebounceDuration = Duration(milliseconds: 400);
 
+/// Mirrors whether [ProductListNotifier.loadMore] is appending the next page.
+/// The grid watches this to show a small footer spinner. It's a plain
+/// `Notifier<bool>` — the Riverpod 3 replacement for the removed `StateProvider`.
+final isProductLoadingMoreProvider =
+    NotifierProvider<LoadMoreFlag, bool>(LoadMoreFlag.new);
+
+class LoadMoreFlag extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void setLoadingMore(bool value) => state = value;
+}
+
 /// Catalog list notifier (pagination, debounced search, pull-to-refresh).
 final productListProvider =
     AsyncNotifierProvider<ProductListNotifier, List<ProductEntity>>(
@@ -47,6 +60,12 @@ class ProductListNotifier extends AsyncNotifier<List<ProductEntity>> {
 
   /// Number of items already loaded — the next page starts here.
   int get _currentSkip => _items.length;
+
+  /// Clears the load-more spinner flag (used when the list resets to the
+  /// first page — search, clear, refresh).
+  void _hideLoadMoreSpinner() {
+    ref.read(isProductLoadingMoreProvider.notifier).setLoadingMore(false);
+  }
 
   /// Attach to the search field's onChanged. Debounces 400ms then either
   /// searches (query non-empty) or restores the full list (emptied).
@@ -87,20 +106,24 @@ class ProductListNotifier extends AsyncNotifier<List<ProductEntity>> {
     _debounce?.cancel();
     _query = '';
     state = const AsyncLoading();
+    _hideLoadMoreSpinner();
     await _resetToFullList();
   }
 
   /// Infinite scroll: loads the next page and appends to the current list.
+  /// While in flight the `isProductLoadingMoreProvider` flag is raised so the
+  /// grid can show a small footer spinner; the list itself stays visible.
   Future<void> loadMore() async {
     if (_isLoadingMore || !_hasMore || _query.isNotEmpty) return;
     _isLoadingMore = true;
+    ref.read(isProductLoadingMoreProvider.notifier).setLoadingMore(true);
     try {
       final result = await _getProducts(
         GetProductsParams(limit: productPageSize, skip: _currentSkip),
       );
       result.fold(
         (failure) {
-          // Silently stop paginating on page-error; the loaded list stays.
+          // Stop paginating on page-error; the loaded list stays.
           _hasMore = false;
         },
         (products) {
@@ -111,6 +134,7 @@ class ProductListNotifier extends AsyncNotifier<List<ProductEntity>> {
       );
     } finally {
       _isLoadingMore = false;
+      ref.read(isProductLoadingMoreProvider.notifier).setLoadingMore(false);
     }
   }
 
@@ -118,6 +142,10 @@ class ProductListNotifier extends AsyncNotifier<List<ProductEntity>> {
     state = const AsyncLoading();
     _items.clear();
     _hasMore = true;
+    // NOTE: must NOT touch `isProductLoadingMoreProvider` here — build() runs
+    // synchronously and Riverpod forbids modifying another provider during
+    // initialization (would throw). The flag already starts `false`; only the
+    // later reset paths (refresh/clear/search) lower it.
     final result = await _getProducts(
       GetProductsParams(limit: productPageSize, skip: 0),
     );
@@ -129,6 +157,7 @@ class ProductListNotifier extends AsyncNotifier<List<ProductEntity>> {
   }
 
   Future<void> _resetToFullList() async {
+    _hideLoadMoreSpinner();
     final result = await _getProducts(
       GetProductsParams(limit: productPageSize, skip: 0),
     );
@@ -145,6 +174,7 @@ class ProductListNotifier extends AsyncNotifier<List<ProductEntity>> {
 
   Future<void> _runSearch() async {
     state = const AsyncLoading();
+
     final result = await _searchProducts(SearchProductsParams(_query));
     result.fold((failure) => state = AsyncError(failure, failure.stackTrace), (
       products,
