@@ -1,51 +1,32 @@
-import 'exceptions.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-abstract class Failure implements Exception {
-  final int errorCode;
-  final String message;
-  final dynamic data;
+part 'failures.freezed.dart';
 
-  const Failure({this.errorCode = 0, this.message = "", this.data});
+/// Domain/presentation-facing representation of anything that can go wrong.
+///
+/// Data-layer code throws typed [Exception]s (see exceptions.dart);
+/// repositories catch those and map them to a [Failure] before returning
+/// `Either<Failure, T>` up to use cases and cubits, so nothing above the
+/// data layer ever needs to know about Dio, sockets, or storage APIs.
+@freezed
+sealed class Failure with _$Failure {
+  const factory Failure.server([
+    @Default('A server error occurred') String message,
+    @Default(StackTrace.empty) StackTrace stackTrace,
+  ]) = ServerFailure;
 
-  @override
-  String toString() => '$runtimeType: $message';
-}
+  const factory Failure.network([
+    @Default('No network connection') String message,
+    @Default(StackTrace.empty) StackTrace stackTrace,
+  ]) = NetworkFailure;
 
-class ServerFailure extends Failure {
-  const ServerFailure({super.errorCode, super.message, super.data});
+  const factory Failure.cache([
+    @Default('A cache error occurred') String message,
+    @Default(StackTrace.empty) StackTrace stackTrace,
+  ]) = CacheFailure;
 
-  factory ServerFailure.fromException(ServerException error) {
-    return ServerFailure(
-      errorCode: error.errorCode,
-      message: error.message,
-      data: error.data,
-    );
-  }
-
-  factory ServerFailure.noInternet() {
-    return const ServerFailure(
-      errorCode: 503,
-      message: "No Internet Connection",
-    );
-  }
-
-  factory ServerFailure.other(dynamic error) {
-    return ServerFailure(errorCode: 500, message: error.toString());
-  }
-}
-
-class CacheFailure extends Failure {
-  const CacheFailure({super.errorCode, super.message, super.data});
-
-  factory CacheFailure.fromException(CacheException error) {
-    return CacheFailure(errorCode: error.errorCode, message: error.message);
-  }
-
-  factory CacheFailure.noAuth() {
-    return const CacheFailure(errorCode: 401, message: "No Auth");
-  }
-
-  factory CacheFailure.other(dynamic error) {
-    return CacheFailure(errorCode: 500, message: error.toString());
-  }
+  const factory Failure.unexpected([
+    @Default('An unexpected error occurred') String message,
+    @Default(StackTrace.empty) StackTrace stackTrace,
+  ]) = UnexpectedFailure;
 }

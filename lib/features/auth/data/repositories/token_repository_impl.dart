@@ -1,4 +1,4 @@
-import 'package:auth_katalog_app/features/auth/domain/repository/token_repository.dart';
+import 'package:auth_katalog_app/features/auth/domain/repositories/token_repository.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 /// Secure token persistence backed by `flutter_secure_storage`.

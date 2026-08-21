@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:auth_katalog_app/features/auth/domain/repository/token_repository.dart';
+import 'package:auth_katalog_app/features/auth/domain/repositories/token_repository.dart';
 import 'package:dio/dio.dart';
 
 /// Injects `Authorization: Bearer <accessToken>` into every protected request

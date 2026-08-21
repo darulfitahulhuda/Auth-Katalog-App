@@ -1,5 +1,5 @@
 import 'package:auth_katalog_app/core/di/providers.dart';
-import 'package:auth_katalog_app/features/auth/presentation/providers/auth_state.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -14,8 +14,12 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _usernameController = TextEditingController(
+    text: kDebugMode ? 'emilys' : null,
+  );
+  final _passwordController = TextEditingController(
+    text: kDebugMode ? 'emilyspass' : null,
+  );
 
   @override
   void dispose() {
@@ -27,7 +31,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    await ref.read(authStateNotifierProvider.notifier).login(
+    await ref
+        .read(authStateNotifierProvider.notifier)
+        .login(
           username: _usernameController.text.trim(),
           password: _passwordController.text,
         );
@@ -35,9 +41,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authStateNotifierProvider).value;
-    final isLoading = authState is AuthLoading;
-    final errorMessage = authState is AuthError ? authState.message : null;
+    final authState = ref.watch(authStateNotifierProvider);
+    final isLoading = authState.isLoading;
+    // final errorMessage = authState is AuthError ? authState.message : null;
+    final errorMessage = authState is AsyncError
+        ? authState.error.toString()
+        : null;
 
     return Scaffold(
       body: SafeArea(
@@ -78,8 +87,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       autofillHints: const [AutofillHints.username],
                       validator: (value) =>
                           (value == null || value.trim().isEmpty)
-                              ? 'Username wajib diisi'
-                              : null,
+                          ? 'Username wajib diisi'
+                          : null,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(

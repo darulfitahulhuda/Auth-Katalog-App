@@ -1,7 +1,7 @@
 import 'package:auth_katalog_app/core/usecase/usecase.dart';
 import 'package:auth_katalog_app/core/utils/typedef.dart';
 import 'package:auth_katalog_app/features/auth/domain/entity/user_entity.dart';
-import 'package:auth_katalog_app/features/auth/domain/repository/auth_repository.dart';
+import 'package:auth_katalog_app/features/auth/domain/repositories/auth_repository.dart';
 
 class LoginParams {
   const LoginParams({required this.username, required this.password});

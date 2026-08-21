@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:auth_katalog_app/core/network/auth_interceptor.dart';
-import 'package:auth_katalog_app/features/auth/domain/repository/token_repository.dart';
+import 'package:auth_katalog_app/features/auth/domain/repositories/token_repository.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 

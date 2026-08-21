@@ -1,14 +1,32 @@
-class CacheException implements Exception {
-  final int errorCode;
-  final String message;
+/// Thrown by data sources when a remote/server call fails.
+class ServerException implements Exception {
+  const ServerException([
+    this.message = 'A server error occurred',
+    this.stackTrace = StackTrace.empty,
+  ]);
 
-  CacheException({this.errorCode = 0, this.message = ""});
+  final String message;
+  final StackTrace stackTrace;
 }
 
-class ServerException implements Exception {
-  final int errorCode;
-  final String message;
-  dynamic data;
+/// Thrown by data sources when a local cache read/write fails.
+class CacheException implements Exception {
+  const CacheException([
+    this.message = 'A cache error occurred',
+    this.stackTrace = StackTrace.empty,
+  ]);
 
-  ServerException({this.errorCode = 0, this.message = "", this.data});
+  final String message;
+  final StackTrace stackTrace;
+}
+
+/// Thrown when there is no network connectivity for a call that requires it.
+class NetworkException implements Exception {
+  const NetworkException([
+    this.message = 'No network connection',
+    this.stackTrace = StackTrace.empty,
+  ]);
+
+  final String message;
+  final StackTrace stackTrace;
 }

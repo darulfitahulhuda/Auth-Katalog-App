@@ -14,6 +14,7 @@ _UserProfileModel _$UserProfileModelFromJson(Map<String, dynamic> json) =>
       firstName: json['firstName'] as String,
       lastName: json['lastName'] as String,
       gender: json['gender'] as String,
+      image: json['image'] as String,
     );
 
 Map<String, dynamic> _$UserProfileModelToJson(_UserProfileModel instance) =>
@@ -24,4 +25,5 @@ Map<String, dynamic> _$UserProfileModelToJson(_UserProfileModel instance) =>
       'firstName': instance.firstName,
       'lastName': instance.lastName,
       'gender': instance.gender,
+      'image': instance.image,
     };

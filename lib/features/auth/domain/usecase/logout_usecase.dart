@@ -2,7 +2,7 @@ import 'package:auth_katalog_app/core/error/failures.dart';
 import 'package:fpdart/fpdart.dart';
 
 import 'package:auth_katalog_app/core/usecase/usecase.dart';
-import 'package:auth_katalog_app/features/auth/domain/repository/auth_repository.dart';
+import 'package:auth_katalog_app/features/auth/domain/repositories/auth_repository.dart';
 
 /// Clears the current session and any persisted tokens.
 class LogoutUseCase implements UseCase<void, NoParams> {
@@ -15,8 +15,8 @@ class LogoutUseCase implements UseCase<void, NoParams> {
     try {
       await _repository.logout();
       return const Right(null);
-    } catch (error) {
-      return Left(CacheFailure.other(error));
+    } catch (error, stackTrace) {
+      return Left(Failure.unexpected(error.toString(), stackTrace));
     }
   }
 }

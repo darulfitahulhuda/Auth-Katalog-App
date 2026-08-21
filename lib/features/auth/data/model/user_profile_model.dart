@@ -17,6 +17,7 @@ abstract class UserProfileModel with _$UserProfileModel {
     @JsonKey(name: 'firstName') required String firstName,
     @JsonKey(name: 'lastName') required String lastName,
     @JsonKey(name: 'gender') required String gender,
+    @JsonKey(name: 'image') required String image,
   }) = _UserProfileModel;
 
   factory UserProfileModel.fromJson(Map<String, Object?> json) =>
@@ -24,11 +25,12 @@ abstract class UserProfileModel with _$UserProfileModel {
 
   /// Maps to the pure domain entity.
   UserEntity toEntity() => UserEntity(
-        id: id,
-        username: username,
-        email: email,
-        firstName: firstName,
-        lastName: lastName,
-        gender: gender,
-      );
+    id: id,
+    username: username,
+    email: email,
+    firstName: firstName,
+    lastName: lastName,
+    gender: gender,
+    image: image,
+  );
 }

@@ -3,8 +3,8 @@ import 'package:auth_katalog_app/core/error/failures.dart';
 import 'package:auth_katalog_app/core/utils/typedef.dart';
 import 'package:auth_katalog_app/features/auth/data/datasource/auth_remote_data_source.dart';
 import 'package:auth_katalog_app/features/auth/domain/entity/user_entity.dart';
-import 'package:auth_katalog_app/features/auth/domain/repository/auth_repository.dart';
-import 'package:auth_katalog_app/features/auth/domain/repository/token_repository.dart';
+import 'package:auth_katalog_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:auth_katalog_app/features/auth/domain/repositories/token_repository.dart';
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
 
@@ -39,18 +39,11 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       return Right(profile.toEntity());
     } on DioException catch (error) {
-      return Left(
-        ServerFailure.fromException(
-          ServerException(
-            errorCode: error.response?.statusCode ?? 0,
-            message: _extractMessage(error),
-          ),
-        ),
-      );
+      return Left(Failure.server(_extractMessage(error), error.stackTrace));
     } on ServerException catch (error) {
-      return Left(ServerFailure.fromException(error));
-    } catch (error) {
-      return Left(CacheFailure.other(error));
+      return Left(Failure.cache(error.message, error.stackTrace));
+    } catch (error, stackTrace) {
+      return Left(Failure.unexpected(error.toString(), stackTrace));
     }
   }
 
@@ -64,23 +57,18 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final token = await _tokenRepository.getAccessToken();
       if (token == null) {
-        return Left(CacheFailure.noAuth());
+        return Left(
+          Failure.cache('No authentication token found', StackTrace.current),
+        );
       }
       final profile = await _remoteDataSource.getProfile(accessToken: token);
       return Right(profile.toEntity());
     } on DioException catch (error) {
-      return Left(
-        ServerFailure.fromException(
-          ServerException(
-            errorCode: error.response?.statusCode ?? 0,
-            message: _extractMessage(error),
-          ),
-        ),
-      );
+      return Left(Failure.server(_extractMessage(error), error.stackTrace));
     } on ServerException catch (error) {
-      return Left(ServerFailure.fromException(error));
-    } catch (error) {
-      return Left(CacheFailure.other(error));
+      return Left(Failure.cache(error.message, error.stackTrace));
+    } catch (error, stackTrace) {
+      return Left(Failure.unexpected(error.toString(), stackTrace));
     }
   }
 

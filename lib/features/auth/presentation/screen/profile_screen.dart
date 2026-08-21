@@ -1,5 +1,4 @@
 import 'package:auth_katalog_app/core/di/providers.dart';
-import 'package:auth_katalog_app/features/auth/presentation/providers/auth_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -36,8 +35,7 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authStateNotifierProvider).value;
-    final user = authState is AuthAuthenticated ? authState.user : null;
+    final user = ref.watch(authStateNotifierProvider).value;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Profile')),

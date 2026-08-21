@@ -1,10 +1,9 @@
 import 'package:auth_katalog_app/core/di/providers.dart';
-import 'package:auth_katalog_app/features/auth/presentation/providers/auth_state.dart';
-import 'package:auth_katalog_app/features/auth/presentation/screen/home_screen.dart';
 import 'package:auth_katalog_app/features/auth/presentation/screen/login_screen.dart';
-import 'package:auth_katalog_app/features/auth/presentation/screen/product_detail_screen.dart';
 import 'package:auth_katalog_app/features/auth/presentation/screen/profile_screen.dart';
 import 'package:auth_katalog_app/features/auth/presentation/widgets/main_shell_layout.dart';
+import 'package:auth_katalog_app/features/home/presentation/screen/home_screen.dart';
+import 'package:auth_katalog_app/features/home/presentation/screen/product_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -18,28 +17,16 @@ import 'package:go_router/go_router.dart';
 /// - `/product/:id`      → product detail
 final routerProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
-    initialLocation: '/home',
+    initialLocation: '/login',
     navigatorKey: _rootNavigatorKey,
     redirect: (context, state) {
       final authState = ref.read(authStateNotifierProvider).value;
-      final isLoginRoute = state.matchedLocation == '/login';
 
-      // Still loading the initial check — stay put.
-      if (authState == null ||
-          authState is AuthInitial ||
-          authState is AuthLoading) {
-        return null;
+      // If the user is logged in, send them to the home page
+      if (authState != null) {
+        return "/home";
       }
 
-      // Authenticated users never see the login screen.
-      if (authState is AuthAuthenticated && isLoginRoute) {
-        return '/home';
-      }
-
-      // Unauthenticated/errored users are forced onto the login screen.
-      if (authState is AuthUnauthenticated || authState is AuthError) {
-        return isLoginRoute ? null : '/login';
-      }
       return null;
     },
     routes: [
