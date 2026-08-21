@@ -1,8 +1,8 @@
-import 'package:auth_katalog_app/core/utils/color_utils.dart';
+import 'package:auth_katalog_app/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 /// Central Material 3 theme definitions. Both [light] and [dark] are seeded
-/// from [ColorUtils.primary], so the whole component library (cards, buttons,
+/// from [AppColors.primary], so the whole component library (cards, buttons,
 /// inputs, app bars) derives a coherent analogous palette in each mode.
 ///
 /// There is no `Color(0x...)`/`Colors.x` usage in screens on purpose: every
@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 /// the app adapt automatically when [ThemeMode] switches.
 abstract final class AppTheme {
   /// The single source of truth for the brand color (organge seed).
-  static const seedColor = ColorUtils.primary;
+  static const seedColor = AppColors.primary;
 
   static ThemeData get light => _build(Brightness.light);
 
@@ -85,8 +85,10 @@ abstract final class AppTheme {
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(color: colorScheme.primary, width: 2),
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
       ),
 
       // --- App bar: transparent, centered title, scroll-under elevation ------

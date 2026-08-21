@@ -17,19 +17,20 @@ import 'package:go_router/go_router.dart';
 /// - `/product/:id`      → product detail
 final routerProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
-    initialLocation: '/home',
+    initialLocation: "/home",
     navigatorKey: _rootNavigatorKey,
     redirect: (context, state) {
       final authAsync = ref.read(authStateNotifierProvider);
+
+      final isLoggedIn = authAsync.value != null;
+      final isOnLogin = state.matchedLocation == '/login';
+
       // While the persisted session is still being checked, do not redirect:
       // `AsyncLoading` → value is null but we must NOT bounce to the login
       // screen (that would flash login on every app launch).
       if (authAsync.isLoading) {
         return null;
       }
-
-      final isLoggedIn = authAsync.value != null;
-      final isOnLogin = state.matchedLocation == '/login';
 
       // Not logged in and not on the login screen → send to login.
       if (!isLoggedIn && !isOnLogin) {

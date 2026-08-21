@@ -1,9 +1,10 @@
+import 'package:auth_katalog_app/core/error/failures.dart';
 import 'package:auth_katalog_app/core/extension/double_extension.dart';
+import 'package:auth_katalog_app/core/presentation/widgets/app_error_view.dart';
 import 'package:auth_katalog_app/features/home/domain/entity/product_entity.dart';
 import 'package:auth_katalog_app/features/home/presentation/providers/product_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 /// Full-screen product detail (outside the shell — no bottom nav). The
 /// product id comes from the `/product/:id` route parameter; data loads via
@@ -24,9 +25,10 @@ class ProductDetailScreen extends ConsumerWidget {
       appBar: AppBar(title: const Text('Detail Produk')),
       body: detailAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => _DetailError(
-          productId: productId,
-          onBack: () => context.go('/home'),
+        error: (error, stackTrace) => AppErrorView(
+          isOffline: error is NetworkFailure,
+          onRetry: () => ref.read(productDetailProvider(id ?? -1).notifier).retry(),
+          onPullRefresh: () => ref.read(productDetailProvider(id ?? -1).notifier).retry(),
         ),
         data: (product) => _DetailBody(product: product),
       ),
@@ -118,33 +120,3 @@ class _DetailBody extends StatelessWidget {
   }
 }
 
-class _DetailError extends StatelessWidget {
-  const _DetailError({required this.productId, required this.onBack});
-
-  final String productId;
-  final VoidCallback onBack;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.cloud_off_outlined,
-            size: 64,
-            color: Theme.of(context).colorScheme.error,
-          ),
-          const SizedBox(height: 12),
-          const Text('Gagal memuat detail produk'),
-          const SizedBox(height: 16),
-          OutlinedButton.icon(
-            onPressed: onBack,
-            icon: const Icon(Icons.arrow_back),
-            label: const Text('Kembali ke katalog'),
-          ),
-        ],
-      ),
-    );
-  }
-}

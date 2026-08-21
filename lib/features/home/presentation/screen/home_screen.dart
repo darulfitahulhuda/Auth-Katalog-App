@@ -1,4 +1,5 @@
 import 'package:auth_katalog_app/core/error/failures.dart';
+import 'package:auth_katalog_app/core/presentation/widgets/app_error_view.dart';
 import 'package:auth_katalog_app/features/home/domain/entity/product_entity.dart';
 import 'package:auth_katalog_app/features/home/presentation/providers/product_providers.dart';
 import 'package:auth_katalog_app/features/home/presentation/widgets/product_card.dart';
@@ -66,8 +67,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       : const SizedBox.shrink(),
                 ),
                 filled: true,
-                fillColor:
-                    Theme.of(context).colorScheme.surfaceContainerHighest,
+                fillColor: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -88,12 +90,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   ) {
     return productsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) => _ErrorView(
+      error: (error, stackTrace) => AppErrorView(
         isOffline: error is NetworkFailure,
         onRetry: notifier.retry,
+        onPullRefresh: notifier.refresh,
       ),
       data: (products) => products.isEmpty
-          ? _EmptyView(onClearSearch: _clearSearch)
+          ? _EmptyView(
+              onClearSearch: _clearSearch,
+              onRefresh: notifier.refresh,
+            )
           : _ProductGrid(
               products: products,
               onRefresh: notifier.refresh,
@@ -110,7 +116,7 @@ class _ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userName = profile?.displayName ?? 'Pengguna';
+    final userName = profile?.displayName ?? '-';
     final greeting = 'Halo, ${userName.split(' ').first}';
     final hasAvatar = profile != null && profile!.image.isNotEmpty;
 
@@ -121,9 +127,7 @@ class _ProfileHeader extends StatelessWidget {
           CircleAvatar(
             radius: 24,
             backgroundImage: hasAvatar ? NetworkImage(profile!.image) : null,
-            child: hasAvatar
-                ? null
-                : const Icon(Icons.person, size: 28),
+            child: hasAvatar ? null : const Icon(Icons.person, size: 28),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -158,7 +162,11 @@ class _ProductGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
-    final crossAxisCount = width >= 720 ? 4 : width >= 480 ? 3 : 2;
+    final crossAxisCount = width >= 720
+        ? 4
+        : width >= 480
+        ? 3
+        : 2;
 
     /// Tolerant consumer of the (nullable) endpoints.
     return RefreshIndicator(
@@ -184,69 +192,40 @@ class _ProductGrid extends StatelessWidget {
 }
 
 class _EmptyView extends StatelessWidget {
-  const _EmptyView({required this.onClearSearch});
+  const _EmptyView({required this.onClearSearch, required this.onRefresh});
 
   final VoidCallback onClearSearch;
+  final Future<void> Function() onRefresh;
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Lottie.asset(
-            'assets/lotties/empty.json',
-            height: 180,
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Lottie.asset('assets/lotties/empty.json', height: 180),
+                  const SizedBox(height: 8),
+                  const Text('Produk tidak ditemukan'),
+                  const SizedBox(height: 16),
+                  OutlinedButton.icon(
+                    onPressed: onClearSearch,
+                    icon: const Icon(Icons.search_off),
+                    label: const Text('Bersihkan pencarian'),
+                  ),
+                ],
+              ),
+            ),
           ),
-          const SizedBox(height: 8),
-          const Text('Produk tidak ditemukan'),
-          const SizedBox(height: 16),
-          OutlinedButton.icon(
-            onPressed: onClearSearch,
-            icon: const Icon(Icons.search_off),
-            label: const Text('Bersihkan pencarian'),
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
-class _ErrorView extends StatelessWidget {
-  const _ErrorView({required this.isOffline, required this.onRetry});
-
-  final bool isOffline;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Lottie.asset(
-            isOffline
-                ? 'assets/lotties/no_internet.json'
-                : 'assets/lotties/empty.json',
-            height: 180,
-          ),
-          const SizedBox(height: 8),
-          Text(isOffline ? 'Tidak ada koneksi internet' : 'Gagal memuat katalog'),
-          const SizedBox(height: 4),
-          Text(
-            isOffline
-                ? 'Periksa koneksi Anda, lalu coba lagi.'
-                : 'Terjadi kesalahan saat memuat data.',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          const SizedBox(height: 16),
-          FilledButton.icon(
-            onPressed: onRetry,
-            icon: const Icon(Icons.refresh),
-            label: const Text('Coba Lagi'),
-          ),
-        ],
-      ),
-    );
-  }
-}

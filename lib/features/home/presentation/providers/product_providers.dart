@@ -20,13 +20,10 @@ final productListProvider =
     );
 
 /// Per-product detail: one [ProductDetailNotifier] instance per product id.
-final productDetailProvider = AsyncNotifierProvider.family<
-  ProductDetailNotifier,
-  ProductEntity,
-  int
->(
-  ProductDetailNotifier.new,
-);
+final productDetailProvider =
+    AsyncNotifierProvider.family<ProductDetailNotifier, ProductEntity, int>(
+      ProductDetailNotifier.new,
+    );
 
 /// Paginated catalog list with search debounce and pull-to-refresh.
 /// State is [AsyncValue<List<ProductEntity>>]: while a search or refresh is
@@ -84,10 +81,12 @@ class ProductListNotifier extends AsyncNotifier<List<ProductEntity>> {
   }
 
   /// Clears the active search and reloads the full first page. Used by the
-  /// empty state's "Clear search" action.
+  /// empty state's "Clear search" action. Flips to [AsyncLoading] so the UI
+  /// shows the spinner while the full list rebuilds.
   Future<void> clearSearch() async {
     _debounce?.cancel();
     _query = '';
+    state = const AsyncLoading();
     await _resetToFullList();
   }
 
@@ -116,50 +115,46 @@ class ProductListNotifier extends AsyncNotifier<List<ProductEntity>> {
   }
 
   Future<List<ProductEntity>> _loadFirstPage() async {
+    state = const AsyncLoading();
     _items.clear();
     _hasMore = true;
     final result = await _getProducts(
       GetProductsParams(limit: productPageSize, skip: 0),
     );
-    return result.fold(
-      (failure) => throw failure,
-      (products) {
-        _items.addAll(products);
-        _hasMore = products.length == productPageSize;
-        return List.unmodifiable(_items);
-      },
-    );
+    return result.fold((failure) => throw failure, (products) {
+      _items.addAll(products);
+      _hasMore = products.length == productPageSize;
+      return List.unmodifiable(_items);
+    });
   }
 
   Future<void> _resetToFullList() async {
     final result = await _getProducts(
       GetProductsParams(limit: productPageSize, skip: 0),
     );
-    result.fold(
-      (failure) => state = AsyncError(failure, failure.stackTrace),
-      (products) {
-        _items
-          ..clear()
-          ..addAll(products);
-        _hasMore = products.length == productPageSize;
-        state = AsyncData(List.unmodifiable(_items));
-      },
-    );
+    result.fold((failure) => state = AsyncError(failure, failure.stackTrace), (
+      products,
+    ) {
+      _items
+        ..clear()
+        ..addAll(products);
+      _hasMore = products.length == productPageSize;
+      state = AsyncData(List.unmodifiable(_items));
+    });
   }
 
   Future<void> _runSearch() async {
     state = const AsyncLoading();
     final result = await _searchProducts(SearchProductsParams(_query));
-    result.fold(
-      (failure) => state = AsyncError(failure, failure.stackTrace),
-      (products) {
-        _items
-          ..clear()
-          ..addAll(products);
-        _hasMore = false;
-        state = AsyncData(List.unmodifiable(_items));
-      },
-    );
+    result.fold((failure) => state = AsyncError(failure, failure.stackTrace), (
+      products,
+    ) {
+      _items
+        ..clear()
+        ..addAll(products);
+      _hasMore = false;
+      state = AsyncData(List.unmodifiable(_items));
+    });
   }
 }
 
@@ -174,7 +169,15 @@ class ProductDetailNotifier extends AsyncNotifier<ProductEntity> {
 
   @override
   Future<ProductEntity> build() async {
+    state = const AsyncLoading();
     final result = await _getDetail(GetProductDetailParams(_productId));
     return result.fold((failure) => throw failure, (product) => product);
+  }
+
+  /// Retry after an error: flips to [AsyncLoading] then invalidates this
+  /// instance so [build] re-runs.
+  Future<void> retry() async {
+    state = const AsyncLoading();
+    ref.invalidateSelf();
   }
 }

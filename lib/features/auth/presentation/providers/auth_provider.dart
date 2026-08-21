@@ -19,11 +19,15 @@ class AuthNotifier extends AsyncNotifier<UserEntity?> {
     // Session check only — no network. While this future is pending the state
     // stays [AsyncLoading]; the router redirect skips loading so the login
     // screen never flashes on launch.
-    final result = await _check(const NoParams());
-    return result.fold((failure) => null, (hasSession) {
-      if (!hasSession) return null;
-      return const UserEntity.empty();
-    });
+    try {
+      final result = await _check(const NoParams());
+      return result.fold((failure) => null, (hasSession) {
+        if (!hasSession) return null;
+        return const UserEntity.empty();
+      });
+    } catch (e) {
+      return null;
+    }
   }
 
   LoginUseCase get _login => ref.read(loginUseCaseProvider);
