@@ -1,20 +1,43 @@
-import 'package:auth_katalog_app/core/di/providers.dart';
-import 'package:auth_katalog_app/features/auth/domain/entity/user_entity.dart';
+import 'package:auth_katalog_app/core/error/failures.dart';
 import 'package:auth_katalog_app/features/home/domain/entity/product_entity.dart';
 import 'package:auth_katalog_app/features/home/presentation/providers/product_providers.dart';
 import 'package:auth_katalog_app/features/home/presentation/widgets/product_card.dart';
+import 'package:auth_katalog_app/features/profile/domain/entity/profile_entity.dart';
+import 'package:auth_katalog_app/features/profile/presentation/providers/profile_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lottie/lottie.dart';
 
 /// Home tab: profile header, debounced search bar, and a responsive product
 /// grid with explicit loading / empty / error ("Coba Lagi") states. No Dio or
 /// JSON here — all data flows through the [productListProvider] notifier.
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(authStateNotifierProvider).value;
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  final _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  /// Clears the search field and tells the notifier to reload the first page.
+  Future<void> _clearSearch() async {
+    _searchController.clear();
+    await ref.read(productListProvider.notifier).clearSearch();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Auth state gates the route; the header shows the richer profile from the
+    // profile feature (falls back to a generic greeting while it loads).
+    final profileAsync = ref.watch(profileProvider);
     final productsAsync = ref.watch(productListProvider);
     final notifier = ref.read(productListProvider.notifier);
 
@@ -26,15 +49,26 @@ class HomeScreen extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          _ProfileHeader(user: user),
+          _ProfileHeader(profile: profileAsync.value),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: TextField(
+              controller: _searchController,
               onChanged: notifier.onQueryChanged,
               textInputAction: TextInputAction.search,
               decoration: InputDecoration(
                 hintText: 'Cari produk…',
                 prefixIcon: const Icon(Icons.search),
+                suffixIcon: ValueListenableBuilder<TextEditingValue>(
+                  valueListenable: _searchController,
+                  builder: (context, value, child) => value.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: _clearSearch,
+                          tooltip: 'Bersihkan pencarian',
+                        )
+                      : const SizedBox.shrink(),
+                ),
                 filled: true,
                 fillColor:
                     Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -58,9 +92,12 @@ class HomeScreen extends ConsumerWidget {
   ) {
     return productsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) => _ErrorView(onRetry: notifier.retry),
+      error: (error, stackTrace) => _ErrorView(
+        isOffline: error is NetworkFailure,
+        onRetry: notifier.retry,
+      ),
       data: (products) => products.isEmpty
-          ? const _EmptyView()
+          ? _EmptyView(onClearSearch: _clearSearch)
           : _ProductGrid(
               products: products,
               onRefresh: notifier.refresh,
@@ -71,15 +108,15 @@ class HomeScreen extends ConsumerWidget {
 }
 
 class _ProfileHeader extends StatelessWidget {
-  const _ProfileHeader({this.user});
+  const _ProfileHeader({this.profile});
 
-  final UserEntity? user;
+  final ProfileEntity? profile;
 
   @override
   Widget build(BuildContext context) {
-    final userName = user?.displayName ?? 'Pengguna';
+    final userName = profile?.displayName ?? 'Pengguna';
     final greeting = 'Halo, ${userName.split(' ').first}';
-    final hasAvatar = user != null && user!.image.isNotEmpty;
+    final hasAvatar = profile != null && profile!.image.isNotEmpty;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
@@ -87,7 +124,7 @@ class _ProfileHeader extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 24,
-            backgroundImage: hasAvatar ? NetworkImage(user!.image) : null,
+            backgroundImage: hasAvatar ? NetworkImage(profile!.image) : null,
             child: hasAvatar
                 ? null
                 : const Icon(Icons.person, size: 28),
@@ -99,7 +136,7 @@ class _ProfileHeader extends StatelessWidget {
               children: [
                 Text(greeting, style: Theme.of(context).textTheme.titleLarge),
                 Text(
-                  '@${user?.username ?? '-'}',
+                  '@${profile?.username ?? '-'}',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
@@ -151,17 +188,28 @@ class _ProductGrid extends StatelessWidget {
 }
 
 class _EmptyView extends StatelessWidget {
-  const _EmptyView();
+  const _EmptyView({required this.onClearSearch});
+
+  final VoidCallback onClearSearch;
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.inventory_2_outlined, size: 64),
-          SizedBox(height: 12),
-          Text('Produk tidak ditemukan'),
+          Lottie.asset(
+            'assets/lotties/empty.json',
+            height: 180,
+          ),
+          const SizedBox(height: 8),
+          const Text('Produk tidak ditemukan'),
+          const SizedBox(height: 16),
+          OutlinedButton.icon(
+            onPressed: onClearSearch,
+            icon: const Icon(Icons.search_off),
+            label: const Text('Bersihkan pencarian'),
+          ),
         ],
       ),
     );
@@ -169,8 +217,9 @@ class _EmptyView extends StatelessWidget {
 }
 
 class _ErrorView extends StatelessWidget {
-  const _ErrorView({required this.onRetry});
+  const _ErrorView({required this.isOffline, required this.onRetry});
 
+  final bool isOffline;
   final VoidCallback onRetry;
 
   @override
@@ -179,13 +228,21 @@ class _ErrorView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.cloud_off_outlined,
-            size: 64,
-            color: Theme.of(context).colorScheme.error,
+          Lottie.asset(
+            isOffline
+                ? 'assets/lotties/no_internet.json'
+                : 'assets/lotties/empty.json',
+            height: 180,
           ),
-          const SizedBox(height: 12),
-          const Text('Gagal memuat katalog'),
+          const SizedBox(height: 8),
+          Text(isOffline ? 'Tidak ada koneksi internet' : 'Gagal memuat katalog'),
+          const SizedBox(height: 4),
+          Text(
+            isOffline
+                ? 'Periksa koneksi Anda, lalu coba lagi.'
+                : 'Terjadi kesalahan saat memuat data.',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
           const SizedBox(height: 16),
           FilledButton.icon(
             onPressed: onRetry,

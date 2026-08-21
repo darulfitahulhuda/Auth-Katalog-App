@@ -83,6 +83,14 @@ class ProductListNotifier extends AsyncNotifier<List<ProductEntity>> {
     await refresh();
   }
 
+  /// Clears the active search and reloads the full first page. Used by the
+  /// empty state's "Clear search" action.
+  Future<void> clearSearch() async {
+    _debounce?.cancel();
+    _query = '';
+    await _resetToFullList();
+  }
+
   /// Infinite scroll: loads the next page and appends to the current list.
   Future<void> loadMore() async {
     if (_isLoadingMore || !_hasMore || _query.isNotEmpty) return;

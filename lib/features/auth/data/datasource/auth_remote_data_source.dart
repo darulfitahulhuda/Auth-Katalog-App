@@ -1,6 +1,5 @@
 import 'package:auth_katalog_app/features/auth/data/model/login_request_model.dart';
 import 'package:auth_katalog_app/features/auth/data/model/token_model.dart';
-import 'package:auth_katalog_app/features/auth/data/model/user_profile_model.dart';
 import 'package:dio/dio.dart';
 
 /// Raw API calls to dummyjson.com. The ONLY place auth code touches Dio's
@@ -12,8 +11,6 @@ abstract interface class AuthRemoteDataSource {
   });
 
   Future<TokenModel> refreshToken({required String refreshToken});
-
-  Future<UserProfileModel> getProfile({required String accessToken});
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -23,7 +20,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   static const _loginPath = '/auth/login';
   static const _refreshPath = '/auth/refresh';
-  static const _mePath = '/auth/me';
 
   @override
   Future<TokenModel> login({
@@ -49,12 +45,4 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     return TokenModel.fromJson(response.data!);
   }
 
-  @override
-  Future<UserProfileModel> getProfile({required String accessToken}) async {
-    final response = await _dio.get<Map<String, dynamic>>(
-      _mePath,
-      options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
-    );
-    return UserProfileModel.fromJson(response.data!);
   }
-}

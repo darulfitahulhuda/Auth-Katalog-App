@@ -34,10 +34,12 @@ class AuthRepositoryImpl implements AuthRepository {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
       );
-      final profile = await _remoteDataSource.getProfile(
-        accessToken: tokens.accessToken,
+      // Login response carries only tokens; the profile lives in the profile
+      // feature and is fetched separately via `/auth/me`. Emit a lightweight
+      // identity so the auth flow stays fast and session-only.
+      return Right(
+        UserEntity(id: 0, username: username, email: ''),
       );
-      return Right(profile.toEntity());
     } on DioException catch (error) {
       return Left(Failure.server(_extractMessage(error), error.stackTrace));
     } on ServerException catch (error) {
@@ -50,26 +52,6 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<void> logout() async {
     await _tokenRepository.clearTokens();
-  }
-
-  @override
-  FutureData<UserEntity> getProfile() async {
-    try {
-      final token = await _tokenRepository.getAccessToken();
-      if (token == null) {
-        return Left(
-          Failure.cache('No authentication token found', StackTrace.current),
-        );
-      }
-      final profile = await _remoteDataSource.getProfile(accessToken: token);
-      return Right(profile.toEntity());
-    } on DioException catch (error) {
-      return Left(Failure.server(_extractMessage(error), error.stackTrace));
-    } on ServerException catch (error) {
-      return Left(Failure.cache(error.message, error.stackTrace));
-    } catch (error, stackTrace) {
-      return Left(Failure.unexpected(error.toString(), stackTrace));
-    }
   }
 
   @override

@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'user_profile_model.dart';
+part of 'profile_model.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -13,22 +13,22 @@ part of 'user_profile_model.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$UserProfileModel {
+mixin _$ProfileModel {
 
 @JsonKey(name: 'id') int get id;@JsonKey(name: 'username') String get username;@JsonKey(name: 'email') String get email;@JsonKey(name: 'firstName') String get firstName;@JsonKey(name: 'lastName') String get lastName;@JsonKey(name: 'gender') String get gender;@JsonKey(name: 'image') String get image;
-/// Create a copy of UserProfileModel
+/// Create a copy of ProfileModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$UserProfileModelCopyWith<UserProfileModel> get copyWith => _$UserProfileModelCopyWithImpl<UserProfileModel>(this as UserProfileModel, _$identity);
+$ProfileModelCopyWith<ProfileModel> get copyWith => _$ProfileModelCopyWithImpl<ProfileModel>(this as ProfileModel, _$identity);
 
-  /// Serializes this UserProfileModel to a JSON map.
+  /// Serializes this ProfileModel to a JSON map.
   Map<String, dynamic> toJson();
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserProfileModel&&(identical(other.id, id) || other.id == id)&&(identical(other.username, username) || other.username == username)&&(identical(other.email, email) || other.email == email)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.image, image) || other.image == image));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProfileModel&&(identical(other.id, id) || other.id == id)&&(identical(other.username, username) || other.username == username)&&(identical(other.email, email) || other.email == email)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.image, image) || other.image == image));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -37,15 +37,15 @@ int get hashCode => Object.hash(runtimeType,id,username,email,firstName,lastName
 
 @override
 String toString() {
-  return 'UserProfileModel(id: $id, username: $username, email: $email, firstName: $firstName, lastName: $lastName, gender: $gender, image: $image)';
+  return 'ProfileModel(id: $id, username: $username, email: $email, firstName: $firstName, lastName: $lastName, gender: $gender, image: $image)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $UserProfileModelCopyWith<$Res>  {
-  factory $UserProfileModelCopyWith(UserProfileModel value, $Res Function(UserProfileModel) _then) = _$UserProfileModelCopyWithImpl;
+abstract mixin class $ProfileModelCopyWith<$Res>  {
+  factory $ProfileModelCopyWith(ProfileModel value, $Res Function(ProfileModel) _then) = _$ProfileModelCopyWithImpl;
 @useResult
 $Res call({
 @JsonKey(name: 'id') int id,@JsonKey(name: 'username') String username,@JsonKey(name: 'email') String email,@JsonKey(name: 'firstName') String firstName,@JsonKey(name: 'lastName') String lastName,@JsonKey(name: 'gender') String gender,@JsonKey(name: 'image') String image
@@ -56,14 +56,14 @@ $Res call({
 
 }
 /// @nodoc
-class _$UserProfileModelCopyWithImpl<$Res>
-    implements $UserProfileModelCopyWith<$Res> {
-  _$UserProfileModelCopyWithImpl(this._self, this._then);
+class _$ProfileModelCopyWithImpl<$Res>
+    implements $ProfileModelCopyWith<$Res> {
+  _$ProfileModelCopyWithImpl(this._self, this._then);
 
-  final UserProfileModel _self;
-  final $Res Function(UserProfileModel) _then;
+  final ProfileModel _self;
+  final $Res Function(ProfileModel) _then;
 
-/// Create a copy of UserProfileModel
+/// Create a copy of ProfileModel
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? username = null,Object? email = null,Object? firstName = null,Object? lastName = null,Object? gender = null,Object? image = null,}) {
   return _then(_self.copyWith(
@@ -81,8 +81,8 @@ as String,
 }
 
 
-/// Adds pattern-matching-related methods to [UserProfileModel].
-extension UserProfileModelPatterns on UserProfileModel {
+/// Adds pattern-matching-related methods to [ProfileModel].
+extension ProfileModelPatterns on ProfileModel {
 /// A variant of `map` that fallback to returning `orElse`.
 ///
 /// It is equivalent to doing:
@@ -95,10 +95,10 @@ extension UserProfileModelPatterns on UserProfileModel {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _UserProfileModel value)?  $default,{required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ProfileModel value)?  $default,{required TResult orElse(),}){
 final _that = this;
 switch (_that) {
-case _UserProfileModel() when $default != null:
+case _ProfileModel() when $default != null:
 return $default(_that);case _:
   return orElse();
 
@@ -117,10 +117,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _UserProfileModel value)  $default,){
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ProfileModel value)  $default,){
 final _that = this;
 switch (_that) {
-case _UserProfileModel():
+case _ProfileModel():
 return $default(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -138,10 +138,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _UserProfileModel value)?  $default,){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ProfileModel value)?  $default,){
 final _that = this;
 switch (_that) {
-case _UserProfileModel() when $default != null:
+case _ProfileModel() when $default != null:
 return $default(_that);case _:
   return null;
 
@@ -161,7 +161,7 @@ return $default(_that);case _:
 
 @optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'id')  int id, @JsonKey(name: 'username')  String username, @JsonKey(name: 'email')  String email, @JsonKey(name: 'firstName')  String firstName, @JsonKey(name: 'lastName')  String lastName, @JsonKey(name: 'gender')  String gender, @JsonKey(name: 'image')  String image)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
-case _UserProfileModel() when $default != null:
+case _ProfileModel() when $default != null:
 return $default(_that.id,_that.username,_that.email,_that.firstName,_that.lastName,_that.gender,_that.image);case _:
   return orElse();
 
@@ -182,7 +182,7 @@ return $default(_that.id,_that.username,_that.email,_that.firstName,_that.lastNa
 
 @optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'id')  int id, @JsonKey(name: 'username')  String username, @JsonKey(name: 'email')  String email, @JsonKey(name: 'firstName')  String firstName, @JsonKey(name: 'lastName')  String lastName, @JsonKey(name: 'gender')  String gender, @JsonKey(name: 'image')  String image)  $default,) {final _that = this;
 switch (_that) {
-case _UserProfileModel():
+case _ProfileModel():
 return $default(_that.id,_that.username,_that.email,_that.firstName,_that.lastName,_that.gender,_that.image);case _:
   throw StateError('Unexpected subclass');
 
@@ -202,7 +202,7 @@ return $default(_that.id,_that.username,_that.email,_that.firstName,_that.lastNa
 
 @optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'id')  int id, @JsonKey(name: 'username')  String username, @JsonKey(name: 'email')  String email, @JsonKey(name: 'firstName')  String firstName, @JsonKey(name: 'lastName')  String lastName, @JsonKey(name: 'gender')  String gender, @JsonKey(name: 'image')  String image)?  $default,) {final _that = this;
 switch (_that) {
-case _UserProfileModel() when $default != null:
+case _ProfileModel() when $default != null:
 return $default(_that.id,_that.username,_that.email,_that.firstName,_that.lastName,_that.gender,_that.image);case _:
   return null;
 
@@ -214,9 +214,9 @@ return $default(_that.id,_that.username,_that.email,_that.firstName,_that.lastNa
 /// @nodoc
 @JsonSerializable()
 
-class _UserProfileModel extends UserProfileModel {
-  const _UserProfileModel({@JsonKey(name: 'id') required this.id, @JsonKey(name: 'username') required this.username, @JsonKey(name: 'email') required this.email, @JsonKey(name: 'firstName') required this.firstName, @JsonKey(name: 'lastName') required this.lastName, @JsonKey(name: 'gender') required this.gender, @JsonKey(name: 'image') required this.image}): super._();
-  factory _UserProfileModel.fromJson(Map<String, dynamic> json) => _$UserProfileModelFromJson(json);
+class _ProfileModel extends ProfileModel {
+  const _ProfileModel({@JsonKey(name: 'id') required this.id, @JsonKey(name: 'username') required this.username, @JsonKey(name: 'email') required this.email, @JsonKey(name: 'firstName') required this.firstName, @JsonKey(name: 'lastName') required this.lastName, @JsonKey(name: 'gender') required this.gender, @JsonKey(name: 'image') this.image = ''}): super._();
+  factory _ProfileModel.fromJson(Map<String, dynamic> json) => _$ProfileModelFromJson(json);
 
 @override@JsonKey(name: 'id') final  int id;
 @override@JsonKey(name: 'username') final  String username;
@@ -226,20 +226,20 @@ class _UserProfileModel extends UserProfileModel {
 @override@JsonKey(name: 'gender') final  String gender;
 @override@JsonKey(name: 'image') final  String image;
 
-/// Create a copy of UserProfileModel
+/// Create a copy of ProfileModel
 /// with the given fields replaced by the non-null parameter values.
 @override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$UserProfileModelCopyWith<_UserProfileModel> get copyWith => __$UserProfileModelCopyWithImpl<_UserProfileModel>(this, _$identity);
+_$ProfileModelCopyWith<_ProfileModel> get copyWith => __$ProfileModelCopyWithImpl<_ProfileModel>(this, _$identity);
 
 @override
 Map<String, dynamic> toJson() {
-  return _$UserProfileModelToJson(this, );
+  return _$ProfileModelToJson(this, );
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserProfileModel&&(identical(other.id, id) || other.id == id)&&(identical(other.username, username) || other.username == username)&&(identical(other.email, email) || other.email == email)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.image, image) || other.image == image));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProfileModel&&(identical(other.id, id) || other.id == id)&&(identical(other.username, username) || other.username == username)&&(identical(other.email, email) || other.email == email)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.image, image) || other.image == image));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -248,15 +248,15 @@ int get hashCode => Object.hash(runtimeType,id,username,email,firstName,lastName
 
 @override
 String toString() {
-  return 'UserProfileModel(id: $id, username: $username, email: $email, firstName: $firstName, lastName: $lastName, gender: $gender, image: $image)';
+  return 'ProfileModel(id: $id, username: $username, email: $email, firstName: $firstName, lastName: $lastName, gender: $gender, image: $image)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$UserProfileModelCopyWith<$Res> implements $UserProfileModelCopyWith<$Res> {
-  factory _$UserProfileModelCopyWith(_UserProfileModel value, $Res Function(_UserProfileModel) _then) = __$UserProfileModelCopyWithImpl;
+abstract mixin class _$ProfileModelCopyWith<$Res> implements $ProfileModelCopyWith<$Res> {
+  factory _$ProfileModelCopyWith(_ProfileModel value, $Res Function(_ProfileModel) _then) = __$ProfileModelCopyWithImpl;
 @override @useResult
 $Res call({
 @JsonKey(name: 'id') int id,@JsonKey(name: 'username') String username,@JsonKey(name: 'email') String email,@JsonKey(name: 'firstName') String firstName,@JsonKey(name: 'lastName') String lastName,@JsonKey(name: 'gender') String gender,@JsonKey(name: 'image') String image
@@ -267,17 +267,17 @@ $Res call({
 
 }
 /// @nodoc
-class __$UserProfileModelCopyWithImpl<$Res>
-    implements _$UserProfileModelCopyWith<$Res> {
-  __$UserProfileModelCopyWithImpl(this._self, this._then);
+class __$ProfileModelCopyWithImpl<$Res>
+    implements _$ProfileModelCopyWith<$Res> {
+  __$ProfileModelCopyWithImpl(this._self, this._then);
 
-  final _UserProfileModel _self;
-  final $Res Function(_UserProfileModel) _then;
+  final _ProfileModel _self;
+  final $Res Function(_ProfileModel) _then;
 
-/// Create a copy of UserProfileModel
+/// Create a copy of ProfileModel
 /// with the given fields replaced by the non-null parameter values.
 @override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? username = null,Object? email = null,Object? firstName = null,Object? lastName = null,Object? gender = null,Object? image = null,}) {
-  return _then(_UserProfileModel(
+  return _then(_ProfileModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable

@@ -2,8 +2,10 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'user_entity.freezed.dart';
 
-/// Pure domain entity for the authenticated user. Freezed gives value
-/// equality + copyWith, still fully domain-safe (no JSON, no Flutter).
+/// Lightweight login identity. Holds only what the login response carries;
+/// richer profile data (`/auth/me`) lives in the [ProfileEntity] from the
+/// profile feature. Freezed gives value equality + copyWith, still fully
+/// domain-safe (no JSON, no Flutter).
 @freezed
 abstract class UserEntity with _$UserEntity {
   const UserEntity._();
@@ -12,11 +14,10 @@ abstract class UserEntity with _$UserEntity {
     required int id,
     required String username,
     required String email,
-    required String firstName,
-    required String lastName,
-    required String gender,
-    required String image,
   }) = _UserEntity;
 
-  String get displayName => '$firstName $lastName'.trim();
+  /// Marker for an authenticated session whose account details are still
+  /// loading (auto-login on cold start). Screens read the actual profile via
+  /// the profile feature's provider, so this empty identity is never shown.
+  const factory UserEntity.empty() = _UserEntityEmpty;
 }

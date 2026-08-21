@@ -1,5 +1,5 @@
+import 'package:auth_katalog_app/core/extension/double_extension.dart';
 import 'package:auth_katalog_app/features/home/domain/entity/product_entity.dart';
-import 'package:auth_katalog_app/features/home/presentation/utils/rupiah_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -26,8 +26,7 @@ class ProductCard extends StatelessWidget {
               child: Image.network(
                 product.thumbnail,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                    const ColoredBox(
+                errorBuilder: (context, error, stackTrace) => const ColoredBox(
                   color: Color(0xFFEEEEEE),
                   child: Center(
                     child: Icon(Icons.image_not_supported_outlined, size: 40),
@@ -50,7 +49,7 @@ class ProductCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    formatRupiah(product.price),
+                    product.price.toRupiahFromUsd(),
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: theme.colorScheme.primary,
                       fontWeight: FontWeight.bold,

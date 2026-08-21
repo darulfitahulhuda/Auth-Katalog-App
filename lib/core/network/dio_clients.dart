@@ -9,15 +9,15 @@ Dio createDioClient({required String baseUrl}) {
   final dio = Dio(
     BaseOptions(
       baseUrl: baseUrl,
-      connectTimeout: const Duration(seconds: 15),
-      receiveTimeout: const Duration(seconds: 15),
+      connectTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 30),
     ),
   );
 
-  // dio.interceptors.add(ErrorInterceptor());
-
   if (kDebugMode) {
-    dio.interceptors.add(PrettyDioLogger());
+    dio.interceptors.add(
+      PrettyDioLogger(requestBody: true, requestHeader: true),
+    );
   }
 
   return dio;

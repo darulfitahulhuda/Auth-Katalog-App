@@ -59,6 +59,7 @@ dependencies:
   fpdart: ^1.2.0
   connectivity_plus: ^7.3.1
   pretty_dio_logger: ^1.4.0
+  lottie: ^3.3.3
 
 dev_dependencies:
   flutter_test:

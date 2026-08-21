@@ -1,6 +1,6 @@
+import 'package:auth_katalog_app/core/extension/double_extension.dart';
 import 'package:auth_katalog_app/features/home/domain/entity/product_entity.dart';
 import 'package:auth_katalog_app/features/home/presentation/providers/product_providers.dart';
-import 'package:auth_katalog_app/features/home/presentation/utils/rupiah_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -85,7 +85,7 @@ class _DetailBody extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                formatRupiah(product.price),
+                product.price.toRupiahFromUsd(),
                 style: theme.textTheme.headlineSmall?.copyWith(
                   color: theme.colorScheme.primary,
                   fontWeight: FontWeight.bold,

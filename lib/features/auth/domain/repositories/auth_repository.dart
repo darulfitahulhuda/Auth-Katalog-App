@@ -14,9 +14,6 @@ abstract interface class AuthRepository {
   /// Invalidates the current session (clears tokens on refresh failure).
   Future<void> logout();
 
-  /// Fetches the authenticated user's profile. Requires a valid access token.
-  FutureData<UserEntity> getProfile();
-
   /// Returns [true] when a valid session exists locally, without hitting the
   /// network (drives auto-login on app launch).
   Future<bool> checkAuthStatus();
